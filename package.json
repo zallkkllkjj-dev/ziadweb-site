@@ -1,1 +1,13 @@
+{
+  "name": "z-platform",
+  "version": "1.0.0",
+  "description": "Z Platform Deployment Tool",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  dependencies: {
+    "express": "^4.19.2"
+  }
+}
 
