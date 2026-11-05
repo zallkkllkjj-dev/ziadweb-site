@@ -1,1 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>_ Z Platform</title>
+<style>
+:root {
+  --bg:#08080c;
+  --card:#14141c;
+  --pink:#ec4899;
+  --muted:#a1a1aa;
+  --border:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:#fff;
+  font-family:Segoe UI,system-ui,sans-serif;
+  min-height:100vh;overflow-x:hidden
+}
+button,input{font:inherit}
+button{cursor:pointer;border:0}
+header{
+  min-height:75px;padding:15px 25px;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--border)
+}
+.logo{font-size:26px;font-weight:900}
+.status{color:#86efac;font-size:13px}
+main{
+  min-height:calc(100vh - 75px);
+  display:flex;align-items:center;
+  flex-direction:column;padding:45px 18px
+}
+.welcome{text-align:center;margin-bottom:30px}
+h1{font-size:clamp(25px,5vw,38px);font-weight:850}
+.welcome p{color:var(--muted);margin-top:10px}
+.upload-area{
+  width:min(300px,85vw);aspect-ratio:1;
+  border:2px dashed rgba(236,72,153,.5);
+  border-radius:50%;
+  background:radial-gradient(circle,#241322,#14141c 70%);
+  display:flex;align-items:center;
+  justify-content:center;flex-direction:column;
+  gap:12px;text-align:center;padding:25px;
+  transition:.25s
+}
+.upload-area:hover{border-color:var(--pink);transform:scale(1.02)}
+.upload-area .symbol{font-size:42px;color:var(--pink)}
+.upload-area strong{font-size:17px}
+.upload-area small{color:var(--muted)}
+.actions{
+  display:flex;flex-wrap:wrap;
+  justify-content:center;gap:12px;
+  width:min(450px,100%);margin-top:22px
+}
+.action{
+  padding:13px 18px;border-radius:11px;
+  background:#191923;color:white;
+  border:1px solid rgba(236,72,153,.4);
+  flex:1;min-width:145px;font-weight:700
+}
+.action.primary{background:var(--pink);border-color:var(--pink)}
+.preview,.result{
+  width:min(450px,100%);
+  margin-top:22px;padding:18px;
+  border:1px solid var(--border);
+  border-radius:15px;background:var(--card)
+}
+.preview{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.preview[hidden],.result[hidden]{display:none}
+.project-info{min-width:0}
+.project-info small{color:var(--muted);display:block;margin-bottom:6px}
+.project-info strong{overflow-wrap:anywhere}
+.deploy{
+  padding:12px 20px;background:var(--pink);
+  color:white;border-radius:10px;font-weight:800
+}
+.result{text-align:center;border-color:var(--pink)}
+.result a{color:#f9a8d4;overflow-wrap:anywhere}
+.result p{margin:10px 0;color:#86efac}
+.url-box{display:flex;gap:8px;margin-top:15px}
+.url-box input{
+  min-width:0;flex:1;padding:11px;
+  background:#090910;color:#f9a8d4;
+  border:1px solid var(--border);border-radius:8px
+}
+.url-box button,.open-link{
+  padding:11px 14px;background:var(--pink);
+  color:white;border-radius:8px;font-weight:700;
+  text-decoration:none
+}
+#message{
+  color:var(--muted);margin-top:18px;
+  text-align:center;max-width:450px;
+  overflow-wrap:anywhere
+}
+.progress{
+  width:min(450px,100%);height:5px;
+  margin-top:18px;background:#252530;
+  border-radius:10px;overflow:hidden
+}
+.progress span{
+  display:block;width:0;height:100%;
+  background:var(--pink);transition:width .3s
+}
+footer{padding:25px;text-align:center;color:#71717a;font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">_ Z</span>
+  <span class="status">● Platform Ready</span>
+</header>
+
+<main>
+  <section class="welcome">
+    <h1>Ready when you are, Ziad.</h1>
+    <p>Upload your project and deploy it.</p>
+  </section>
+
+  <div class="upload-area">
+    <span class="symbol">↑</span>
+    <strong>Upload your project</strong>
+    <small>Choose a folder or multiple files</small>
+  </div>
+
+  <div class="actions">
+    <button class="action primary" id="folderBtn">📁 Browse Folder</button>
+    <button class="action" id="filesBtn">📄 Choose Multiple Files</button>
+  </div>
+
+  <input id="folderInput" type="file" webkitdirectory multiple hidden>
+  <input id="filesInput" type="file" multiple hidden>
+
+  <section class="preview" id="preview" hidden>
+    <div class="project-info">
+      <small>SELECTED PROJECT</small>
+      <strong id="projectName">No files selected</strong>
+      <small id="fileCount"></small>
+    </div>
+    <button class="deploy" id="deployBtn">Deploy Now</button>
+  </section>
+
+  <div class="progress" id="progress" hidden>
+    <span id="progressBar"></span>
+  </div>
+
+  <p id="message">Choose your project to get started.</p>
+
+  <section class="result" id="result" hidden>
+    <h3>🎉 Deployment Successful!</h3>
+    <p>Your website is live.</p>
+    <div class="url-box">
+      <input id="siteUrl" readonly>
+      <button id="copyBtn">Copy</button>
+    </div>
+    <br>
+    <a id="openBtn" class="open-link" target="_blank" rel="noopener">Open Website ↗</a>
+  </section>
+</main>
+
+<footer>Built by Ziad · _ Z Platform</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let selectedFiles = [];
+
+const folderInput = $("folderInput");
+const filesInput = $("filesInput");
+
+$("folderBtn").onclick = () => folderInput.click();
+$("filesBtn").onclick = () => filesInput.click();
+
+folderInput.onchange = () => selectFiles(folderInput.files);
+filesInput.onchange = () => selectFiles(filesInput.files);
+
+function selectFiles(files) {
+  selectedFiles = Array.from(files || []);
+  if (!selectedFiles.length) return;
+
+  $("preview").hidden = false;
+  $("result").hidden = true;
+  $("projectName").textContent = selectedFiles[0].webkitRelativePath?.split("/")[0] || selectedFiles[0].name;
+  $("fileCount").textContent = selectedFiles.length + " files selected";
+  $("message").textContent = "Your project is ready to deploy.";
+}
+
+function readBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+$("deployBtn").onclick = async () => {
+  if (!selectedFiles.length) return;
+
+  const btn = $("deployBtn");
+  btn.disabled = true;
+  btn.textContent = "Preparing...";
+
+  $("result").hidden = true;
+  $("progress").hidden = false;
+  $("progressBar").style.width = "10%";
+  $("message").textContent = "Preparing your files...";
+
+  try {
+    const files = [];
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      let path = file.webkitRelativePath || file.name;
+      path = path.replace(/\\/g, "/");
+
+      if (path.startsWith("/")) {
+        throw new `Error`("Invalid file path.");
+      }
+
+      const data = await readBase64(file);
+      files.push({ file: path, data: data, encoding: "base64" });
+
+      const progress = 10 + Math.round(((i + 1) / selectedFiles.length) * 55);
+      $("progressBar").style.width = progress + "%";
+      $("message").textContent = `Uploading files: ${i + 1}/${selectedFiles.length}`;
+    }
+
+    if (!files.some(f => f.file.split("/").pop() === "index.html")) {
+      throw new Error("Your project must contain an index.html file.");
+    }
+
+    $("progressBar").style.width = "70%";
+    $("message").textContent = "Deploying to Vercel...";
+
+    const projectName = $("projectName").textContent;
+
+    const response = await fetch("/api/deploy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: projectName, files })
+    });
+
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      throw new Error("Server returned invalid response: " + text.slice(0, 60));
+    }
+
+    if (!response.ok) {
+      throw new Error(result.error || "Deployment failed.");
+    }
+
+    $("progressBar").style.width = "100%";
+    $("message").textContent = "Deployment complete!";
+    $("preview").hidden = true;
+    $("progress").hidden = true;
+
+    $("siteUrl").value = result.url;
+    $("openBtn").href = result.url;
+    $("result").hidden = false;
+
+  } catch (error) {
+    alert(error.message);
+    $("message").textContent = error.message;
+    $("progress").hidden = true;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Deploy Now";
+  }
+};
+
+$("copyBtn").onclick = () => {
+  const input = $("siteUrl");
+  input.select();
+  document.execCommand("copy");
+  $("copyBtn").textContent = "Copied!";
+  setTimeout(() => $("copyBtn").textContent = "Copy", 2000);
+};
+</script>
+</body>
+</html>
 
